@@ -131,167 +131,161 @@ export default function Home() {
   };
 
   return (
-    <WithAuth>
-      <div className="bg-background">
-        <main>
-          <h1 className="text-2xl sm:text-3xl font-bold text-center my-8">
-            Welcome to your dashboard
-          </h1>
+    <div className="bg-background">
+      <main>
+        <h1 className="text-2xl sm:text-3xl font-bold text-center my-8">
+          Welcome to your dashboard
+        </h1>
 
-          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 mb-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-34">
-              {filteredBoards?.map((boardData: BoardType, index: number) => (
-                <BoardCard
-                  key={`${boardData.userEmail}-${index}`}
-                  data={boardData}
-                  id={boardData.id}
-                  index={index}
-                  setOpenModal={setOpenModal}
-                  setSelectedIndex={setSelectedIndex}
-                  setDeleteModal={setDeleteModal}
-                />
-              ))}
-            </div>
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8 mb-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 lg:gap-34">
+            {filteredBoards?.map((boardData: BoardType, index: number) => (
+              <BoardCard
+                key={`${boardData.userEmail}-${index}`}
+                data={boardData}
+                id={boardData.id}
+                index={index}
+                setOpenModal={setOpenModal}
+                setSelectedIndex={setSelectedIndex}
+                setDeleteModal={setDeleteModal}
+              />
+            ))}
           </div>
+        </div>
 
-          <Dialog open={deleteModal} onOpenChange={setDeleteModal}>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Delete Board</DialogTitle>
-                <DialogDescription>
-                  Are you sure you want to delete this board? All tasks inside
-                  it will also be removed. This action cannot be undone.
-                </DialogDescription>
-              </DialogHeader>
+        <Dialog open={deleteModal} onOpenChange={setDeleteModal}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Delete Board</DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete this board? All tasks inside it
+                will also be removed. This action cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
 
-              <DialogFooter className="flex justify-end gap-2">
-                <Button variant="outline" onClick={() => setDeleteModal(false)}>
-                  Cancel
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    onDelete();
-                    setDeleteModal(false); // Close modal after confirming
-                  }}
+            <DialogFooter className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setDeleteModal(false)}>
+                Cancel
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  onDelete();
+                  setDeleteModal(false); // Close modal after confirming
+                }}
+              >
+                Delete
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog
+          open={openModal}
+          onOpenChange={() => {
+            setOpenModal(false);
+            setSelectedIndex(-1);
+            setselectedBoardIndex(-1);
+          }}
+        >
+          <DialogContent className="sm:max-w-lg w-[95%] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {boardsData?.[selectedBoardIndex]?.title ?? ""}
+              </DialogTitle>
+              <DialogDescription>
+                {boardsData?.[selectedBoardIndex]?.description ?? ""}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {tasks.map((task: TaskType, index: number) => (
+                <div
+                  className="flex items-center gap-3 relative"
+                  key={`task-${index}`}
                 >
-                  Delete
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-
-          <Dialog
-            open={openModal}
-            onOpenChange={() => {
-              setOpenModal(false);
-              setSelectedIndex(-1);
-              setselectedBoardIndex(-1);
-            }}
-          >
-            <DialogContent className="sm:max-w-lg w-[95%] max-h-[90vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>
-                  {boardsData?.[selectedBoardIndex]?.title ?? ""}
-                </DialogTitle>
-                <DialogDescription>
-                  {boardsData?.[selectedBoardIndex]?.description ?? ""}
-                </DialogDescription>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                {tasks.map((task: TaskType, index: number) => (
-                  <div
-                    className="flex items-center gap-3 relative"
-                    key={`task-${index}`}
-                  >
-                    <Checkbox
-                      id={`task-${index}`}
-                      checked={task.status}
-                      onCheckedChange={() =>
-                        setTasks((prevTasks) =>
-                          prevTasks.map((task, i) =>
-                            i === index
-                              ? { ...task, status: !task.status }
-                              : task
-                          )
+                  <Checkbox
+                    id={`task-${index}`}
+                    checked={task.status}
+                    onCheckedChange={() =>
+                      setTasks((prevTasks) =>
+                        prevTasks.map((task, i) =>
+                          i === index ? { ...task, status: !task.status } : task
                         )
-                      }
-                    />
-                    <Label
-                      htmlFor={`task-${index}`}
-                      className="truncate w-full pr-10"
-                    >
-                      {task.title}
-                    </Label>
-                    <div className="absolute right-0 flex gap-2">
-                      <Pencil
-                        size={20}
-                        onClick={() => {
-                          setTaskValue(task.title);
-                          setTasks((prev) =>
-                            prev.filter((_, i) => i !== index)
-                          );
-                        }}
-                        className="cursor-pointer text-muted-foreground"
-                      />
-                      <Trash2
-                        size={20}
-                        onClick={() =>
-                          setTasks((prev) => prev.filter((_, i) => i !== index))
-                        }
-                        className="cursor-pointer text-red-500"
-                      />
-                    </div>
-                  </div>
-                ))}
-
-                {/* Add task input */}
-                <div className="relative">
-                  <Input
-                    placeholder="Enter new task"
-                    type="text"
-                    value={taskvalue}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && taskvalue?.trim().length) {
-                        setTasks((prev) => [
-                          ...prev,
-                          { title: taskvalue, status: false },
-                        ]);
-                        setTaskValue("");
-                      }
-                    }}
-                    onChange={(e) => setTaskValue(e.target.value)}
+                      )
+                    }
                   />
-                  <div
-                    className="bg-muted p-1 absolute right-2 top-1/2 -translate-y-1/2 rounded cursor-pointer"
-                    onClick={() => {
-                      if (taskvalue?.trim().length) {
-                        setTasks((prev) => [
-                          ...prev,
-                          { title: taskvalue, status: false },
-                        ]);
-                        setTaskValue("");
-                      }
-                    }}
+                  <Label
+                    htmlFor={`task-${index}`}
+                    className="truncate w-full pr-10"
                   >
-                    <CornerDownLeft />
+                    {task.title}
+                  </Label>
+                  <div className="absolute right-0 flex gap-2">
+                    <Pencil
+                      size={20}
+                      onClick={() => {
+                        setTaskValue(task.title);
+                        setTasks((prev) => prev.filter((_, i) => i !== index));
+                      }}
+                      className="cursor-pointer text-muted-foreground"
+                    />
+                    <Trash2
+                      size={20}
+                      onClick={() =>
+                        setTasks((prev) => prev.filter((_, i) => i !== index))
+                      }
+                      className="cursor-pointer text-red-500"
+                    />
                   </div>
                 </div>
-              </div>
+              ))}
 
-              <DialogFooter className="mt-6">
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button onClick={onSave} type="button">
-                  Save changes
-                </Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </main>
-      </div>
-    </WithAuth>
+              {/* Add task input */}
+              <div className="relative">
+                <Input
+                  placeholder="Enter new task"
+                  type="text"
+                  value={taskvalue}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && taskvalue?.trim().length) {
+                      setTasks((prev) => [
+                        ...prev,
+                        { title: taskvalue, status: false },
+                      ]);
+                      setTaskValue("");
+                    }
+                  }}
+                  onChange={(e) => setTaskValue(e.target.value)}
+                />
+                <div
+                  className="bg-muted p-1 absolute right-2 top-1/2 -translate-y-1/2 rounded cursor-pointer"
+                  onClick={() => {
+                    if (taskvalue?.trim().length) {
+                      setTasks((prev) => [
+                        ...prev,
+                        { title: taskvalue, status: false },
+                      ]);
+                      setTaskValue("");
+                    }
+                  }}
+                >
+                  <CornerDownLeft />
+                </div>
+              </div>
+            </div>
+
+            <DialogFooter className="mt-6">
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button onClick={onSave} type="button">
+                Save changes
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </main>
+    </div>
   );
 }
