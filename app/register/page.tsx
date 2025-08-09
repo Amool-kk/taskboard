@@ -10,7 +10,7 @@ export default function Page() {
   const { user } = useAuth();
 
   useEffect(() => {
-    if (!user) {
+    if (user) {
       router.replace("/");
     }
   }, [router, user]);
