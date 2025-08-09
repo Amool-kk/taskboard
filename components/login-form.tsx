@@ -36,10 +36,10 @@ export function LoginForm({ className, pathname, ...props }: LoginFormProps) {
 
     const { message } = await data.json();
     if (data.status === 200) {
-      await checkAuth();
       toast.success(message);
       setEmail(null);
       setPassword(null);
+      await checkAuth();
       router.replace("/");
     } else {
       toast.error(message);
