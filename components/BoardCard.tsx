@@ -8,25 +8,30 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { EllipsisVertical } from "lucide-react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 import { BoardType, TaskType } from "@/lib/boardDB";
 import { Progress } from "./ui/progress";
+import Link from "next/link";
 
 const BoardCard = ({
   data,
+  id,
   index,
   setOpenModal,
+  setDeleteModal,
   setSelectedIndex,
 }: {
   data: BoardType;
+  id: number;
   index: number;
   setOpenModal: (value: boolean) => void;
+  setDeleteModal: (value: boolean) => void;
   setSelectedIndex: (value: number) => void;
 }) => {
   const createdAt = new Date(data.createdAt).toLocaleDateString("en-US", {
-    month: "short", // Short month name (e.g., "Nov")
-    day: "numeric", // Day of the month (e.g., "2")
-    year: "numeric", // Year (e.g., "2022")
+    month: "short",
+    day: "numeric",
+    year: "numeric",
   });
 
   const diffMs = data.dueDate - Date.now();
@@ -45,18 +50,34 @@ const BoardCard = ({
     : 0;
 
   return (
-    <Card
-      className="w-full max-w-sm py-4"
-      style={{ gap: 8 }}
-      onClick={() => {
-        setOpenModal(true);
-        setSelectedIndex(index);
-      }}
-    >
+    <Card className="w-full lg:w-70 max-w-sm py-4" style={{ gap: 8 }}>
       <CardHeader className="px-3">
         <CardTitle className="text-2xl text-gray-400">{createdAt}</CardTitle>
-        <CardAction>
-          <EllipsisVertical />
+        <CardAction className="flex gap-4">
+          <Plus
+            size={20}
+            className="cursor-pointer"
+            onClick={() => {
+              setOpenModal(true);
+              setSelectedIndex(id);
+            }}
+          />
+          <Link
+            onClick={(e) => e.stopPropagation()}
+            href={`/update-board/${index}`}
+          >
+            <Pencil size={20} />
+          </Link>
+          <Trash2
+            size={20}
+            color="red"
+            className="cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedIndex(id);
+              setDeleteModal(true);
+            }}
+          />
         </CardAction>
       </CardHeader>
       <CardContent>
@@ -64,18 +85,23 @@ const BoardCard = ({
         <CardDescription className="h-13">{data.description}</CardDescription>
         <Progress value={ProgressValue} className="my-3" />
         <CardDescription className="relative">
-          Progress <span className="absolute right-0">{ProgressValue}</span>
+          Progress <span className="absolute right-0">{ProgressValue} %</span>
         </CardDescription>
       </CardContent>
       <CardFooter>
         <div
           style={{
-            backgroundColor: "lightgreen",
+            backgroundColor:
+              ProgressValue === 100
+                ? "lightgreen"
+                : daysLeft > 1
+                ? "#f6f07f"
+                : "#f57a7a",
             padding: "7px 25px",
             borderRadius: 50,
           }}
         >
-          {daysLeft} days left
+          {ProgressValue === 100 ? "Completed" : `${daysLeft} days left`}
         </div>
       </CardFooter>
     </Card>

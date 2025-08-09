@@ -1,4 +1,4 @@
-import { Boards, BoardType } from "@/lib/boardDB";
+import { Boards } from "@/lib/boardDB";
 import { verifyJwt } from "@/lib/jwt";
 import { parse } from "cookie";
 import { NextApiRequest, NextApiResponse } from "next";
@@ -22,10 +22,17 @@ export default async function handler(
       .json({ message: "Unauthorized user: Invalid token" });
   }
 
-  const { id, tasks } = req.body as BoardType;
+  const { id, title, description, dueDate } = req.body;
 
-  if (!id || !tasks) {
-    return res.status(400).json({ message: "Id and tasks are required" });
+  if (!title || !dueDate) {
+    return res
+      .status(400)
+      .json({ message: "Title and Due Date are required." });
+  }
+
+  const today = new Date().toISOString().split("T")[0];
+  if (dueDate < today) {
+    return res.status(400).json({ message: "Due date cannot be in the past." });
   }
 
   const index = Boards.findIndex((b) => b.id === id);
@@ -33,9 +40,14 @@ export default async function handler(
     return res.status(404).json({ message: "Board not found" });
   }
 
-  Boards[index] = { ...Boards[index], tasks };
-
-  return res
-    .status(200)
-    .json({ message: "Tasks updated", board: Boards[index] });
+  Boards[index] = {
+    ...Boards[index],
+    title,
+    description,
+    dueDate: new Date(dueDate).getTime(),
+  };
+  return res.status(200).json({
+    message: "Board Updated",
+    board: Boards[index],
+  });
 }

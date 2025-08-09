@@ -2,18 +2,58 @@
 import BoardForm from "@/components/board-form";
 import { Button } from "@/components/ui/button";
 import WithAuth from "@/components/WithAuth";
-import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import { BoardType } from "@/lib/boardDB";
+import { useParams, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-type FormData = {
+export type FormData = {
+  id?: number;
   title: string;
   description?: string;
   dueDate: string;
 };
-const CreateBoard = () => {
+
+function formatDate(dateStr: number): string {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const month = `0${date.getMonth() + 1}`.slice(-2); // months are 0-based
+  const day = `0${date.getDate()}`.slice(-2);
+  return `${year}-${month}-${day}`;
+}
+
+const UpdateBoard = () => {
   const router = useRouter();
+  const params = useParams();
+  const { index } = params as unknown as { index: number };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  const getData = async () => {
+    const data = await fetch("/api/getboards", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    });
+
+    const { boards }: { boards: BoardType[] } = await data.json();
+    if (data.status !== 200) {
+      router.replace("/");
+    }
+    setFormData({
+      id: boards[index].id,
+      title: boards[index].title,
+      description: boards[index].description,
+      dueDate: formatDate(boards[index].dueDate),
+    });
+  };
+
   const [formData, setFormData] = useState<FormData>({
+    id: -1,
     title: "",
     description: "",
     dueDate: "",
@@ -34,7 +74,7 @@ const CreateBoard = () => {
     }
 
     try {
-      const data = await fetch("/api/create-board", {
+      const data = await fetch("/api/update-board", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,9 +84,9 @@ const CreateBoard = () => {
       });
 
       const { message } = await data.json();
-      if (data.status === 201) {
+      if (data.status === 200) {
         toast.success(message);
-        setFormData({ title: "", description: "", dueDate: "" });
+        setFormData({ id: -1, title: "", description: "", dueDate: "" });
         router.push("/");
       } else {
         toast.error(message);
@@ -61,18 +101,16 @@ const CreateBoard = () => {
     <WithAuth>
       <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 my-10">
         <h1 className="text-2xl sm:text-3xl font-bold text-center my-10">
-          Create New Board
+          Update Board
         </h1>
-
         <BoardForm
           handleInputChange={handleInputChange}
           data={formData}
           today={today}
         />
-
-        <div className="flex flex-col gap-3 my-6">
+        <div className="flex flex-col gap-3 my-3">
           <Button type="button" className="w-full" onClick={createBoard}>
-            Create Board
+            Update Board
           </Button>
         </div>
       </div>
@@ -80,4 +118,4 @@ const CreateBoard = () => {
   );
 };
 
-export default CreateBoard;
+export default UpdateBoard;

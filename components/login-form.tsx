@@ -52,7 +52,6 @@ export function LoginForm({ className, pathname, ...props }: LoginFormProps) {
       }),
     });
 
-    // console.log(await data.json(), data.status);
     const { message } = await data.json();
     if (data.status === 201) {
       toast.success(message);
@@ -67,9 +66,12 @@ export function LoginForm({ className, pathname, ...props }: LoginFormProps) {
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
+          <CardTitle>
+            {isLoginPage ? "Login to your account" : "Create your account"}
+          </CardTitle>
           <CardDescription>
-            Enter your email below to login to your account
+            Enter your email below to {isLoginPage ? "login" : "create"} to your
+            account
           </CardDescription>
         </CardHeader>
         <CardContent>

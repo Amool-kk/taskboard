@@ -48,7 +48,6 @@ export default async function handler(
   };
 
   Boards.push(newBoard);
-  console.log(Boards);
 
   return res
     .status(201)

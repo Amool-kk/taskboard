@@ -1,7 +1,7 @@
+import { Boards } from "@/lib/boardDB";
 import { verifyJwt } from "@/lib/jwt";
 import { parse } from "cookie";
 import { NextApiRequest, NextApiResponse } from "next";
-import { Boards } from "@/lib/boardDB";
 
 export default async function handler(
   req: NextApiRequest,
@@ -22,6 +22,20 @@ export default async function handler(
       .json({ message: "Unauthorized user: Invalid token" });
   }
 
-  const data = Boards.filter((b) => b.userEmail === verified.email);
-  return res.status(200).json({ message: "Get All Boards", boards: data });
+  const { id } = req.body;
+
+  if (!id) {
+    return res.status(400).json({ message: "Board Id is required." });
+  }
+
+  const boardIndex = Boards.findIndex((board) => board.id === id);
+
+  if (boardIndex === -1) {
+    return res.status(404).json({ message: "Board not found." });
+  }
+
+  // Remove the board from array
+  Boards.splice(boardIndex, 1);
+
+  return res.status(200).json({ message: "Board deleted successfully." });
 }
