@@ -1,6 +1,8 @@
 import { Users } from "@/lib/userDB";
 import { NextApiRequest, NextApiResponse } from "next";
 import bcrypt from "bcrypt";
+import { serialize } from "cookie";
+import { signJwt } from "@/lib/jwt";
 
 export default async function handler(
   req: NextApiRequest,
@@ -31,6 +33,18 @@ export default async function handler(
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: "Invalid email or password" });
     }
+
+    const token = signJwt({ email: existedUser.email });
+
+    const cookie = serialize("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
+      maxAge: 3600,
+    });
+
+    res.setHeader("Set-Cookie", cookie);
 
     return res.status(200).json({ message: "Login successful" });
   }

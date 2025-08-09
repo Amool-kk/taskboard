@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type LoginFormProps = React.ComponentProps<"div"> & {
   pathname?: string;
@@ -18,8 +19,9 @@ type LoginFormProps = React.ComponentProps<"div"> & {
 
 export function LoginForm({ className, pathname, ...props }: LoginFormProps) {
   const isLoginPage = pathname === "/login";
-  const [email, setEmail] = useState<string>();
-  const [password, setPassword] = useState<string>();
+  const [email, setEmail] = useState<string | null>();
+  const [password, setPassword] = useState<string | null>();
+  const router = useRouter();
 
   const login = async () => {
     const data = await fetch("/api/login", {
@@ -33,6 +35,9 @@ export function LoginForm({ className, pathname, ...props }: LoginFormProps) {
     const { message } = await data.json();
     if (data.status === 200) {
       toast.success(message);
+      setEmail(null);
+      setPassword(null);
+      router.replace("/");
     } else {
       toast.error(message);
     }
@@ -51,6 +56,9 @@ export function LoginForm({ className, pathname, ...props }: LoginFormProps) {
     const { message } = await data.json();
     if (data.status === 201) {
       toast.success(message);
+      setEmail(null);
+      setPassword(null);
+      router.push("/login");
     } else {
       toast.error(message);
     }
