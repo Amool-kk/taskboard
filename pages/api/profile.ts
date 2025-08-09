@@ -26,7 +26,7 @@ export default async function handler(
     }
 
     // If needed, you can access the user info from verified token here
-    return res.status(200).json({ message: "User profile", user: Boards });
+    return res.status(200).json({ message: "User profile", user: verified });
   } catch (error) {
     console.error("Auth error:", error);
     return res.status(500).json({ message: "Internal server error" });

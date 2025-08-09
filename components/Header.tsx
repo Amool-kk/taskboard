@@ -10,7 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 export function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useAuth();
+  const { user, checkAuth } = useAuth();
 
   const logout = async () => {
     const data = await fetch("/api/logout", {
@@ -22,6 +22,7 @@ export function SiteHeader() {
     });
 
     if (data.status === 200) {
+      await checkAuth();
       router.replace("/login");
     }
   };
