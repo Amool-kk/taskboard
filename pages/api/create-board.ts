@@ -1,6 +1,7 @@
 import { Boards, BoardType } from "@/lib/boardDB";
 import { verifyJwt } from "@/lib/jwt";
 import { parse } from "cookie";
+import { JwtPayload } from "jsonwebtoken";
 import { NextApiRequest, NextApiResponse } from "next";
 
 export default async function handler(
@@ -14,7 +15,7 @@ export default async function handler(
     return res.status(401).json({ message: "Unauthorized user: No token" });
   }
 
-  const verified = verifyJwt(token);
+  const verified = verifyJwt(token) as JwtPayload & { email: string };
 
   if (!verified) {
     return res

@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
 type LoginFormProps = React.ComponentProps<"div"> & {
-  pathname?: string;
+  pathname: string;
 };
 
 export function LoginForm({ className, pathname, ...props }: LoginFormProps) {

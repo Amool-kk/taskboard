@@ -1,7 +1,6 @@
 // context/AuthContext.tsx
 "use client";
 import { createContext, useEffect, useState, useContext } from "react";
-import { useRouter } from "next/navigation";
 
 type User = {
   email: string;

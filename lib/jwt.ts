@@ -1,9 +1,13 @@
-import jwt from "jsonwebtoken";
+import jwt, { SignOptions } from "jsonwebtoken";
 
 const SECRET = process.env.JWT_SECRET || "my-super-secret-key";
 
-export function signJwt(payload: object, expiresIn = "1h") {
-  return jwt.sign(payload, SECRET, { expiresIn });
+console.log(SECRET, "-----===---")
+
+export function signJwt(payload: object, expiresIn: string = "1h") {
+  return jwt.sign(payload, SECRET, {
+    expiresIn: expiresIn as SignOptions["expiresIn"],
+  });
 }
 
 export function verifyJwt(token: string) {

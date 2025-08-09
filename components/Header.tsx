@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { SearchForm } from "./ui/search";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/context/AuthContext";
 
 export function SiteHeader() {
   const router = useRouter();
   const pathname = usePathname();
+  const { user } = useAuth();
 
   const logout = async () => {
     const data = await fetch("/api/logout", {
@@ -39,9 +41,11 @@ export function SiteHeader() {
           </div>
         )}
 
-        <div className="flex items-center justify-end">
-          <LogOut onClick={logout} />
-        </div>
+        {user ? (
+          <div className="flex items-center justify-end">
+            <LogOut onClick={logout} />
+          </div>
+        ) : null}
       </div>
 
       {pathname === "/" && (

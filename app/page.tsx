@@ -18,7 +18,7 @@ import { useSearch } from "@/context/SearchContext";
 import { BoardType, TaskType } from "@/lib/boardDB";
 import { CornerDownLeft, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 export default function Home() {
